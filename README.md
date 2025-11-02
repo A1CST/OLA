@@ -1,28 +1,31 @@
-# Isolated OLA - Genome Evolution Visualizer
+# OLA - Genome Evolution Visualizer
 
-A self-contained evolution visualization system that shows how genome structure and trust change over time through continuous mutation.
+A self-contained evolution visualization system that shows how genome structure and trust change over time through continuous mutation driven by any data stream.
 
 ## Overview
 
-This project visualizes real-time evolution dynamics of neural genomes without any game or environment dependencies. It demonstrates:
+This project visualizes real-time evolution dynamics of neural genomes processing streaming data. It demonstrates:
 
+- **Stream-Driven Evolution**: Genomes evolve based on any data stream (video, audio, text, system metrics)
 - **Continuous Evolution**: Genomes mutate based on trust scores
 - **Trust Dynamics**: Trust increases with output consistency, decays over time
 - **Real-time Visualization**: Live network graph showing genome relationships
 - **LSH Similarity**: Genomes connected by similarity edges
 
+Currently demonstrated using system metrics (CPU, RAM) via psutil as the data stream.
+
 ## System Architecture
 
 ```
-Random Input → VAE → PatternLSTM → Genomes → Mutation → Visualization
-                ↓         ↓           ↓          ↓
-            Latent    Pattern    Outputs     Trust
-            Vector   Features   +Trust      Update
+Data Stream → VAE → PatternLSTM → Genomes → Mutation → Visualization
+  (any)        ↓         ↓           ↓          ↓
+           Latent    Pattern    Outputs     Trust
+           Vector   Features   +Trust      Update
 ```
 
 ### Components
 
-1. **VAE** (`vae.py`): Untrained variational autoencoder that encodes random inputs into latent vectors
+1. **VAE** (`vae.py`): Untrained variational autoencoder that encodes streaming data into latent vectors
 2. **PatternLSTM** (`pattern_lstm.py`): Temporal model that extracts patterns from latent sequences
 3. **OLAGenome** (`ola_genome.py`): Evolvable neural network with trust tracking and mutation capabilities
 4. **GenomeLibrary** (`genome_library.py`): Manages population of genomes with automatic mutation
@@ -80,7 +83,7 @@ python main.py --checkpoint save.pt       # Save checkpoint at end
 
 ### Evolution Loop
 
-1. **Input Generation**: Random smooth signals using sine waves
+1. **Data Stream Input**: System collects streaming data (currently: CPU/RAM metrics via psutil)
 2. **Encoding**: VAE encodes input to latent space
 3. **Pattern Extraction**: PatternLSTM processes latent sequence
 4. **Genome Update**: All genomes process pattern vector
@@ -88,6 +91,17 @@ python main.py --checkpoint save.pt       # Save checkpoint at end
 6. **Mutation Check**: Every 50 ticks, low-trust genomes mutate
 7. **Population Growth**: New genomes added every 200 ticks
 8. **Visualization**: Network graph updates at 30 FPS
+
+### Data Stream Sources
+
+The system can process any streaming data source:
+- **System Metrics**: CPU, RAM, disk I/O (default implementation)
+- **Video**: Frame data from camera or video files
+- **Audio**: Waveform or spectrogram data from microphone or audio files
+- **Text**: Token embeddings from text streams
+- **Network**: Packet data or network traffic metrics
+
+Simply replace the `generate_random_input()` function in `main.py` to use your data source.
 
 ### Trust Mechanics
 
